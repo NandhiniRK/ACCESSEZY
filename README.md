@@ -72,7 +72,8 @@ Optional fine-tuned DistilBERT classifier on GoEmotions dataset for enhanced emo
 **Backend**: Flask + SQLite3  
 **Frontend**: Jinja2 templates with responsive CSS  
 **Machine Learning**: PyTorch, HuggingFace Transformers, Sentence-Transformers  
-**Authentication**: SHA256 password hashing  
+**Email**: Gmail SMTP for OTP verification  
+**Authentication**: SHA256 password hashing + OTP-based email verification  
 
 ---
 
