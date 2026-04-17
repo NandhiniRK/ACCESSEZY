@@ -72,8 +72,7 @@ Optional fine-tuned DistilBERT classifier on GoEmotions dataset for enhanced emo
 **Backend**: Flask + SQLite3  
 **Frontend**: Jinja2 templates with responsive CSS  
 **Machine Learning**: PyTorch, HuggingFace Transformers, Sentence-Transformers  
-**Email**: Gmail SMTP for OTP verification  
-**Authentication**: SHA256 password hashing + OTP-based email verification  
+ 
 
 ---
 
@@ -82,7 +81,6 @@ Optional fine-tuned DistilBERT classifier on GoEmotions dataset for enhanced emo
 ### Prerequisites
 - Python 3.8+
 - pip (Python package manager)
-- Gmail account with app-specific password (for email verification)
 
 ### Steps
 
