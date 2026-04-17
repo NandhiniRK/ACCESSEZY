@@ -11,7 +11,7 @@
 
     <!-- ══ PLATFORM STATS ═════════════════════════════════════════
          Stat boxes with top-border accent on hover, display font values,
-         staggered fade-up animation.
+         staggered fade-up animation. Clickable to show modal.
     ════════════════════════════════════════════════════════════ -->
     <div class="stats-strip" style="grid-template-columns:repeat(auto-fill, minmax(120px, 1fr));">
         {% for label, value, icon in [
@@ -25,7 +25,10 @@
             ('Homework',   stats.total_homework,  '📋'),
             ('Materials',  stats.total_materials, '📎')
         ] %}
-        <div class="stat-box">
+        <div class="stat-box" style="cursor:pointer; transition:transform 0.2s, box-shadow 0.2s;"
+             onclick="openDetailModal('{{ label|lower }}', '{{ icon }}')"
+             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-md)'"
+             onmouseout="this.style.transform='none'; this.style.boxShadow='var(--shadow-xs)'">
             <div style="font-size:22px; margin-bottom:6px;" aria-hidden="true">{{ icon }}</div>
             <div class="stat-value">{{ value }}</div>
             <div class="stat-label">{{ label }}</div>
@@ -185,4 +188,182 @@
     </div>
 
 </main>
+
+<!-- ══ DETAIL MODAL ═══════════════════════════════════════════ -->
+<div id="detailModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+                             background:rgba(0,0,0,0.5); z-index:9999; overflow-y:auto; padding:40px 20px;">
+    <div style="background:#ffffff; border-radius:var(--r-lg); max-width:600px; margin:40px auto;
+                box-shadow:var(--shadow-lg); padding:0; overflow:hidden;"
+         onclick="event.stopPropagation()">
+        <!-- Modal Header -->
+        <div style="padding:24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span style="font-size:28px;" id="modalIcon">👤</span>
+                <h3 style="margin:0; font-size:18px; font-weight:700;" id="modalTitle">Category Details</h3>
+            </div>
+            <button onclick="closeDetailModal()" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--text-muted);">
+                ✕
+            </button>
+        </div>
+        
+        <!-- Modal Content -->
+        <div style="padding:24px; max-height:500px; overflow-y:auto;">
+            <div id="modalContent" style="display:flex; justify-content:center; align-items:center; min-height:100px;">
+                <div style="text-align:center; color:var(--text-muted);">
+                    <p style="margin:0; font-size:14px;">Loading...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div style="padding:16px 24px; border-top:1px solid var(--border); text-align:right;">
+            <button onclick="closeDetailModal()" class="secondary-btn">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function openDetailModal(category, icon) {
+    const modal = document.getElementById('detailModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalIcon = document.getElementById('modalIcon');
+    const modalContent = document.getElementById('modalContent');
+    
+    modalIcon.textContent = icon;
+    modalTitle.textContent = category.charAt(0).toUpperCase() + category.slice(1) + ' Details';
+    modalContent.innerHTML = '<div style="text-align:center; color:var(--text-muted);"><p style="margin:0; font-size:14px;">Loading...</p></div>';
+    modal.style.display = 'block';
+    
+    // Close modal when clicking outside
+    modal.onclick = closeDetailModal;
+    
+    // Fetch data from server
+    fetch(`/admin/get-${category}`)
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to fetch data');
+            return response.json();
+        })
+        .then(data => {
+            if (data.error) {
+                modalContent.innerHTML = `<p style="color:var(--danger); text-align:center;">${data.error}</p>`;
+                return;
+            }
+            
+            // Build HTML based on category
+            let html = '';
+            if (data.items && data.items.length > 0) {
+                html = '<div style="display:flex; flex-direction:column; gap:12px;">';
+                data.items.forEach((item, index) => {
+                    html += buildItemHtml(category, item, index);
+                });
+                html += '</div>';
+            } else {
+                html = '<p style="color:var(--text-muted); text-align:center; margin:0;">No items found.</p>';
+            }
+            
+            modalContent.innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            modalContent.innerHTML = '<p style="color:var(--danger); text-align:center;">Error loading data</p>';
+        });
+}
+
+function buildItemHtml(category, item, index) {
+    let html = '<div style="padding:12px; background:var(--surface-2); border-radius:var(--r-md); border:1px solid var(--border);">';
+    
+    if (category === 'users') {
+        html += `
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+                <div class="child-avatar" style="width:32px; height:32px; font-size:12px;">${item.name[0].toUpperCase()}</div>
+                <div style="flex:1;">
+                    <p style="margin:0; font-weight:700; font-size:14px;">${item.name}</p>
+                    <p style="margin:0; font-size:12px; color:var(--text-muted);">${item.email}</p>
+                </div>
+            </div>
+            <div style="display:flex; gap:8px; font-size:12px; color:var(--text-secondary);">
+                <span class="badge" style="background:${item.role==='teacher'?'var(--brand-light)':'var(--success-light)'}; color:${item.role==='teacher'?'var(--brand)':'var(--success)'};">
+                    ${item.role === 'teacher' ? '👩‍🏫 Teacher' : '👨‍👩‍👧 Parent'}
+                </span>
+                <span>Joined: ${item.created_at}</span>
+            </div>
+        `;
+    } else if (category === 'teachers') {
+        html += `
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div class="child-avatar" style="width:32px; height:32px; font-size:12px;">${item.name[0].toUpperCase()}</div>
+                <div style="flex:1;">
+                    <p style="margin:0; font-weight:700; font-size:14px;">${item.name}</p>
+                    <p style="margin:0; font-size:12px; color:var(--text-muted);">${item.email}</p>
+                </div>
+            </div>
+        `;
+    } else if (category === 'parents') {
+        html += `
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div class="child-avatar" style="width:32px; height:32px; font-size:12px;">${item.name[0].toUpperCase()}</div>
+                <div style="flex:1;">
+                    <p style="margin:0; font-weight:700; font-size:14px;">${item.name}</p>
+                    <p style="margin:0; font-size:12px; color:var(--text-muted);">${item.email}</p>
+                </div>
+            </div>
+        `;
+    } else if (category === 'students') {
+        html += `
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div class="child-avatar" style="width:32px; height:32px; font-size:12px;">${item.name[0].toUpperCase()}</div>
+                <div style="flex:1;">
+                    <p style="margin:0; font-weight:700; font-size:14px;">${item.name}</p>
+                    <p style="margin:0; font-size:12px; color:var(--text-muted);">Age: ${item.age || 'N/A'} | Teacher: ${item.teacher_name}</p>
+                </div>
+            </div>
+        `;
+    } else if (category === 'notes') {
+        html += `
+            <p style="margin:0 0 6px; font-weight:700; font-size:13px; color:var(--text-primary);">${item.student_name}</p>
+            <p style="margin:0; font-size:12px; color:var(--text-secondary);">${item.note.substring(0, 100)}${item.note.length > 100 ? '...' : ''}</p>
+            <p style="margin:6px 0 0; font-size:11px; color:var(--text-muted);">By ${item.teacher_name} · ${item.created_at}</p>
+        `;
+    } else if (category === 'posts') {
+        html += `
+            <p style="margin:0 0 6px; font-weight:700; font-size:13px; color:var(--text-primary);">${item.title}</p>
+            <p style="margin:0 0 6px; font-size:12px; color:var(--text-secondary);">${item.content.substring(0, 80)}${item.content.length > 80 ? '...' : ''}</p>
+            <p style="margin:0; font-size:11px; color:var(--text-muted);">
+                ${item.is_anonymous ? '🔒 Anonymous' : item.author_name} · 
+                <span class="badge" style="background:var(--brand-light); color:var(--brand);">${item.category}</span> · 
+                ${item.created_at}
+            </p>
+        `;
+    } else if (category === 'replies') {
+        html += `
+            <p style="margin:0 0 6px; font-weight:700; font-size:13px; color:var(--text-primary);">Post: ${item.post_title}</p>
+            <p style="margin:0 0 6px; font-size:12px; color:var(--text-secondary);">${item.reply_text.substring(0, 100)}${item.reply_text.length > 100 ? '...' : ''}</p>
+            <p style="margin:0; font-size:11px; color:var(--text-muted);">By ${item.author_name} · ${item.created_at}</p>
+        `;
+    } else if (category === 'homework') {
+        html += `
+            <p style="margin:0 0 6px; font-weight:700; font-size:13px; color:var(--text-primary);">${item.title}</p>
+            <p style="margin:0; font-size:12px; color:var(--text-secondary);">Student: ${item.student_name} | Due: ${item.due_date}</p>
+        `;
+    } else if (category === 'materials') {
+        html += `
+            <p style="margin:0 0 6px; font-weight:700; font-size:13px; color:var(--text-primary);">${item.title}</p>
+            <p style="margin:0; font-size:12px; color:var(--text-secondary);">Student: ${item.student_name} | URL: <a href="${item.url}" target="_blank" style="color:var(--brand);">Link →</a></p>
+        `;
+    }
+    
+    html += '</div>';
+    return html;
+}
+
+function closeDetailModal() {
+    document.getElementById('detailModal').style.display = 'none';
+}
+
+// Close modal on ESC key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeDetailModal();
+});
+</script>
+
 {% endblock %}

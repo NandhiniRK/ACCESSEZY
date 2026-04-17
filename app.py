@@ -886,6 +886,148 @@ def admin_portal():
                            community_posts=community_posts)
 
 
+# ─────────────────────────────────────────────
+# Admin Detail APIs (for modals)
+# ─────────────────────────────────────────────
+
+@app.route("/admin/get-users")
+def admin_get_users():
+    if not admin_required():
+        return {"error": "Unauthorized"}, 403
+    db = get_db()
+    users = db.execute("""
+        SELECT id, name, email, role, created_at FROM users ORDER BY created_at DESC
+    """).fetchall()
+    db.close()
+    return {
+        "items": [dict(u) for u in users]
+    }
+
+@app.route("/admin/get-teachers")
+def admin_get_teachers():
+    if not admin_required():
+        return {"error": "Unauthorized"}, 403
+    db = get_db()
+    teachers = db.execute("""
+        SELECT id, name, email, created_at FROM users WHERE role = 'teacher' ORDER BY created_at DESC
+    """).fetchall()
+    db.close()
+    return {
+        "items": [dict(t) for t in teachers]
+    }
+
+@app.route("/admin/get-parents")
+def admin_get_parents():
+    if not admin_required():
+        return {"error": "Unauthorized"}, 403
+    db = get_db()
+    parents = db.execute("""
+        SELECT id, name, email, created_at FROM users WHERE role = 'parent' ORDER BY created_at DESC
+    """).fetchall()
+    db.close()
+    return {
+        "items": [dict(p) for p in parents]
+    }
+
+@app.route("/admin/get-students")
+def admin_get_students():
+    if not admin_required():
+        return {"error": "Unauthorized"}, 403
+    db = get_db()
+    students = db.execute("""
+        SELECT sp.id, sp.name, sp.age, sp.created_at, u.name AS teacher_name
+        FROM student_profiles sp
+        JOIN users u ON sp.teacher_id = u.id
+        ORDER BY sp.created_at DESC
+    """).fetchall()
+    db.close()
+    return {
+        "items": [dict(s) for s in students]
+    }
+
+@app.route("/admin/get-notes")
+def admin_get_notes():
+    if not admin_required():
+        return {"error": "Unauthorized"}, 403
+    db = get_db()
+    notes = db.execute("""
+        SELECT bn.id, bn.note, bn.created_at, sp.name AS student_name, u.name AS teacher_name
+        FROM behavioral_notes bn
+        JOIN student_profiles sp ON bn.student_id = sp.id
+        JOIN users u ON bn.teacher_id = u.id
+        ORDER BY bn.created_at DESC
+    """).fetchall()
+    db.close()
+    return {
+        "items": [dict(n) for n in notes]
+    }
+
+@app.route("/admin/get-posts")
+def admin_get_posts():
+    if not admin_required():
+        return {"error": "Unauthorized"}, 403
+    db = get_db()
+    posts = db.execute("""
+        SELECT cp.id, cp.title, cp.content, cp.category, cp.is_anonymous, cp.created_at, u.name AS author_name
+        FROM community_posts cp
+        JOIN users u ON cp.user_id = u.id
+        ORDER BY cp.created_at DESC
+    """).fetchall()
+    db.close()
+    return {
+        "items": [dict(p) for p in posts]
+    }
+
+@app.route("/admin/get-replies")
+def admin_get_replies():
+    if not admin_required():
+        return {"error": "Unauthorized"}, 403
+    db = get_db()
+    replies = db.execute("""
+        SELECT cr.id, cr.reply_text, cr.created_at, cp.title AS post_title, u.name AS author_name
+        FROM community_replies cr
+        JOIN community_posts cp ON cr.post_id = cp.id
+        JOIN users u ON cr.user_id = u.id
+        ORDER BY cr.created_at DESC
+    """).fetchall()
+    db.close()
+    return {
+        "items": [dict(r) for r in replies]
+    }
+
+@app.route("/admin/get-homework")
+def admin_get_homework():
+    if not admin_required():
+        return {"error": "Unauthorized"}, 403
+    db = get_db()
+    homework = db.execute("""
+        SELECT hw.id, hw.title, hw.due_date, hw.created_at, sp.name AS student_name
+        FROM homework hw
+        JOIN student_profiles sp ON hw.student_id = sp.id
+        ORDER BY hw.created_at DESC
+    """).fetchall()
+    db.close()
+    return {
+        "items": [dict(h) for h in homework]
+    }
+
+@app.route("/admin/get-materials")
+def admin_get_materials():
+    if not admin_required():
+        return {"error": "Unauthorized"}, 403
+    db = get_db()
+    materials = db.execute("""
+        SELECT lm.id, lm.title, lm.url, lm.created_at, sp.name AS student_name
+        FROM learning_materials lm
+        JOIN student_profiles sp ON lm.student_id = sp.id
+        ORDER BY lm.created_at DESC
+    """).fetchall()
+    db.close()
+    return {
+        "items": [dict(m) for m in materials]
+    }
+
+
 @app.route("/admin/delete-user/<int:user_id>", methods=["POST"])
 def admin_delete_user(user_id):
     if not admin_required():

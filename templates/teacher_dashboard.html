@@ -7,167 +7,241 @@
 ════════════════════════════════════════════════════════════ -->
 <header class="page-header">
     <h2>👩‍🏫 Teacher Dashboard</h2>
-    <p>Manage your students, add observations, assign homework, and track progress.</p>
+    <p>Set up your students and start tracking progress.</p>
 </header>
 
 <main style="max-width:1040px; margin:0 auto; padding:0 var(--space-xl) 56px;">
 
-    <!-- ══ ADD NEW STUDENT ════════════════════════════════════════
-         Clean inline form row. Inputs use the full link-form system.
-    ════════════════════════════════════════════════════════════ -->
-    <div class="teacher-section">
-        <h3>➕ Add New Student</h3>
-        <form method="POST" action="{{ url_for('add_student') }}" class="link-form" aria-label="Add student form">
-            <input type="text" name="name" placeholder="Student full name" required
-                   style="flex:2;" aria-label="Student full name">
-            <input type="number" name="age" placeholder="Age" min="5" max="18"
-                   style="flex:1; max-width:110px;" aria-label="Student age">
-            <button type="submit" class="primary-btn">Add Student</button>
-        </form>
-    </div>
-
-    <!-- ══ LINK PARENT ════════════════════════════════════════════ -->
-    <div class="teacher-section">
-        <h3>🔗 Link a Parent to a Student</h3>
-        {% if parents %}
-        <form method="POST" action="{{ url_for('link_parent') }}" class="link-form" aria-label="Link parent to student">
-            <select name="parent_id" required aria-label="Select parent">
-                <option value="">Select Parent…</option>
-                {% for p in parents %}
-                <option value="{{ p['id'] }}">{{ p['name'] }} ({{ p['email'] }})</option>
-                {% endfor %}
-            </select>
-            <select name="student_id" required aria-label="Select student">
-                <option value="">Select Student…</option>
-                {% for s in students %}
-                <option value="{{ s['id'] }}">{{ s['name'] }}</option>
-                {% endfor %}
-            </select>
-            <button type="submit" class="primary-btn">Link →</button>
-        </form>
-        {% else %}
-        <p style="color:var(--text-muted); font-size:14px; line-height:1.7;">
-            No parent accounts registered yet.
-            Parents need to create an account before they can be linked.
-        </p>
-        {% endif %}
-    </div>
-
-    <!-- ══ ALL STUDENTS ════════════════════════════════════════════
-         Table with risk assessment column, wellbeing tags, strengths.
-         Actions: View Profile + Add Note modal trigger.
-    ════════════════════════════════════════════════════════════ -->
-    <div class="teacher-section">
-        <h3>🎓 Your Students</h3>
-        {% if students %}
-        <div class="results-table-wrap">
-            <table class="results-table" aria-label="Student list">
-                <thead>
-                    <tr>
-                        <th scope="col">Name</th>
-                        <th scope="col">Age</th>
-                        <th scope="col">Risk Assessment</th>
-                        <th scope="col">Added On</th>
-                        <th scope="col">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for s in students %}
-                    <tr>
-                        <td>
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <div class="child-avatar" style="width:34px; height:34px; font-size:13px;"
-                                     aria-hidden="true">{{ s['name'][0].upper() }}</div>
-                                <strong style="font-size:14px;">{{ s['name'] }}</strong>
-                            </div>
-                        </td>
-                        <td style="color:var(--text-secondary);">{{ s['age'] or '—' }}</td>
-                        <td>
-                            {% if s.risk %}
-                            <div style="display:flex; flex-direction:column; gap:6px;">
-                                <span style="display:inline-flex; align-items:center; gap:6px;
-                                             padding:4px 12px; border-radius:var(--r-pill);
-                                             font-size:12px; font-weight:700;
-                                             background:{{ s.risk.color }}18; color:{{ s.risk.color }};">
-                                    {{ s.risk.icon }} {{ s.risk.level }}
-                                </span>
-                                {% if s.risk.wellbeing_tags %}
-                                <div style="display:flex; flex-wrap:wrap; gap:4px;">
-                                    {% for tag in s.risk.wellbeing_tags %}
-                                    <span class="badge"
-                                          style="background:{{ tag.color }}14; color:{{ tag.color }};"
-                                          title="{{ tag.desc }}">
-                                        {{ tag.icon }} {{ tag.name }}
-                                    </span>
-                                    {% endfor %}
-                                </div>
-                                {% endif %}
-                                {% if s.risk.strengths %}
-                                <div style="display:flex; flex-wrap:wrap; gap:4px;">
-                                    {% for strength in s.risk.strengths %}
-                                    <span class="badge" style="background:var(--success-bg); color:var(--success);">
-                                        ✨ {{ strength }}
-                                    </span>
-                                    {% endfor %}
-                                </div>
-                                {% endif %}
-                            </div>
-                            {% else %}
-                            <span style="color:var(--text-muted); font-size:13px;">—</span>
-                            {% endif %}
-                        </td>
-                        <td style="color:var(--text-muted); font-size:12px;">{{ s['created_at'][:10] }}</td>
-                        <td>
-                            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-                                <a href="{{ url_for('student_profile', student_id=s['id']) }}"
-                                   class="secondary-btn" style="padding:6px 14px; font-size:12px;"
-                                   aria-label="View profile for {{ s['name'] }}">
-                                   View Profile →
-                                </a>
-                                <button onclick="openNoteModal({{ s['id'] }}, '{{ s['name'] }}')"
-                                        class="hint-btn" style="font-size:12px;"
-                                        aria-label="Add note for {{ s['name'] }}">
-                                    📝 Add Note
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-        <div class="empty-state">
-            <p style="font-size:36px;" aria-hidden="true">🎓</p>
-            <h3>No students yet</h3>
-            <p>Use the form above to add your first student.</p>
-        </div>
-        {% endif %}
-    </div>
-
-    <!-- ══ RECENT BEHAVIOURAL NOTES ══════════════════════════════ -->
-    {% if recent_notes %}
-    <div class="teacher-section">
-        <h3>📝 Recent Behavioural Notes</h3>
-        {% for note in recent_notes %}
-        <div class="note-card">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:14px;">
-                <div>
-                    <span style="font-size:11px; font-weight:800; color:var(--brand);
-                                 text-transform:uppercase; letter-spacing:0.5px;">
-                        {{ note['student_name'] }}
-                    </span>
-                    <p style="margin-top:5px;">{{ note['note'] }}</p>
+    <!-- ══ STEP INDICATOR ═════════════════════════════════════════ -->
+    <div style="margin-bottom:40px;">
+        <div style="display:flex; justify-content:space-between; position:relative; margin-bottom:30px;">
+            <!-- Progress line -->
+            <div id="progressLine" style="position:absolute; top:20px; left:0; right:0; height:2px; 
+                                         background:var(--border); z-index:0; transition:background 0.3s;">
+            </div>
+            
+            <!-- Step 1 -->
+            <div style="display:flex; flex-direction:column; align-items:center; gap:10px; position:relative; z-index:1;">
+                <div id="step1Circle" class="step-circle active" style="width:40px; height:40px; 
+                     border-radius:50%; background:var(--brand); color:white; display:flex; 
+                     align-items:center; justify-content:center; font-weight:700; cursor:pointer;"
+                     onclick="goToStep(1)">
+                    1
                 </div>
-                <time style="font-size:11px; color:var(--text-muted); white-space:nowrap; font-weight:500;"
-                      datetime="{{ note['created_at'][:10] }}">
-                    {{ note['created_at'][:10] }}
-                </time>
+                <span style="font-size:13px; font-weight:600; color:var(--text-primary);">Add Student</span>
+            </div>
+            
+            <!-- Step 2 -->
+            <div style="display:flex; flex-direction:column; align-items:center; gap:10px; position:relative; z-index:1;">
+                <div id="step2Circle" class="step-circle" style="width:40px; height:40px; 
+                     border-radius:50%; background:var(--border); color:var(--text-muted); display:flex; 
+                     align-items:center; justify-content:center; font-weight:700; cursor:pointer;"
+                     onclick="goToStep(2)">
+                    2
+                </div>
+                <span style="font-size:13px; font-weight:600; color:var(--text-muted);">Link Parent</span>
+            </div>
+            
+            <!-- Step 3 -->
+            <div style="display:flex; flex-direction:column; align-items:center; gap:10px; position:relative; z-index:1;">
+                <div id="step3Circle" class="step-circle" style="width:40px; height:40px; 
+                     border-radius:50%; background:var(--border); color:var(--text-muted); display:flex; 
+                     align-items:center; justify-content:center; font-weight:700; cursor:pointer;"
+                     onclick="goToStep(3)">
+                    3
+                </div>
+                <span style="font-size:13px; font-weight:600; color:var(--text-muted);">Dashboard</span>
             </div>
         </div>
-        {% endfor %}
     </div>
-    {% endif %}
+
+    <!-- ══ STEP 1: ADD NEW STUDENT ════════════════════════════════ -->
+    <div id="step1Content" class="step-content active" style="display:block;">
+        <div class="teacher-section">
+            <h3 style="margin-top:0;">➕ Add Your First Student</h3>
+            <p style="color:var(--text-secondary); margin-bottom:24px;">
+                Create a profile for each student you want to track. You can add multiple students later.
+            </p>
+            <form method="POST" action="{{ url_for('add_student') }}" class="link-form" aria-label="Add student form">
+                <input type="text" name="name" placeholder="Student full name" required
+                       style="flex:2;" aria-label="Student full name">
+                <input type="number" name="age" placeholder="Age" min="5" max="18"
+                       style="flex:1; max-width:110px;" aria-label="Student age">
+                <button type="submit" class="primary-btn">Add Student</button>
+            </form>
+        </div>
+        
+        <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:24px;">
+            <button onclick="goToStep(2)" class="primary-btn" style="min-width:120px;">Next →</button>
+        </div>
+    </div>
+
+    <!-- ══ STEP 2: LINK PARENT ════════════════════════════════════ -->
+    <div id="step2Content" class="step-content" style="display:none;">
+        <div class="teacher-section">
+            <h3 style="margin-top:0;">🔗 Link Parents to Students</h3>
+            <p style="color:var(--text-secondary); margin-bottom:24px;">
+                Connect parent accounts with their children. Parents can view their child's progress and insights.
+            </p>
+            {% if parents and students %}
+            <form method="POST" action="{{ url_for('link_parent') }}" class="link-form" aria-label="Link parent to student">
+                <select name="parent_id" required aria-label="Select parent">
+                    <option value="">Select Parent…</option>
+                    {% for p in parents %}
+                    <option value="{{ p['id'] }}">{{ p['name'] }} ({{ p['email'] }})</option>
+                    {% endfor %}
+                </select>
+                <select name="student_id" required aria-label="Select student">
+                    <option value="">Select Student…</option>
+                    {% for s in students %}
+                    <option value="{{ s['id'] }}">{{ s['name'] }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="primary-btn">Link →</button>
+            </form>
+            {% elif not parents %}
+            <div style="background:var(--brand-light); padding:16px; border-radius:var(--r-md); margin-bottom:24px; border-left:4px solid var(--brand);">
+                <p style="margin:0; font-size:14px; color:var(--text-primary);">
+                    ℹ️ No parent accounts yet. Parents need to register first before you can link them to students.
+                </p>
+            </div>
+            {% elif not students %}
+            <div style="background:var(--brand-light); padding:16px; border-radius:var(--r-md); margin-bottom:24px; border-left:4px solid var(--brand);">
+                <p style="margin:0; font-size:14px; color:var(--text-primary);">
+                    ℹ️ No students added yet. Go back to Step 1 to add students first.
+                </p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div style="display:flex; justify-content:space-between; gap:12px; margin-top:24px;">
+            <button onclick="goToStep(1)" class="secondary-btn" style="min-width:120px;">← Back</button>
+            <button onclick="goToStep(3)" class="primary-btn" style="min-width:120px;">Next →</button>
+        </div>
+    </div>
+
+    <!-- ══ STEP 3: DASHBOARD ══════════════════════════════════════ -->
+    <div id="step3Content" class="step-content" style="display:none;">
+        <!-- ══ ALL STUDENTS ────────────────────────────────────────
+             Table with risk assessment column, wellbeing tags, strengths.
+             Actions: View Profile + Add Note modal trigger.
+        ════════════════════════════════════════════════════════════ -->
+        <div class="teacher-section">
+            <h3 style="margin-top:0;">🎓 Your Students</h3>
+            {% if students %}
+            <div class="results-table-wrap">
+                <table class="results-table" aria-label="Student list">
+                    <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Age</th>
+                            <th scope="col">Risk Assessment</th>
+                            <th scope="col">Added On</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in students %}
+                        <tr>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <div class="child-avatar" style="width:34px; height:34px; font-size:13px;"
+                                         aria-hidden="true">{{ s['name'][0].upper() }}</div>
+                                    <strong style="font-size:14px;">{{ s['name'] }}</strong>
+                                </div>
+                            </td>
+                            <td style="color:var(--text-secondary);">{{ s['age'] or '—' }}</td>
+                            <td>
+                                {% if s.risk %}
+                                <div style="display:flex; flex-direction:column; gap:6px;">
+                                    <span style="display:inline-flex; align-items:center; gap:6px;
+                                                 padding:4px 12px; border-radius:var(--r-pill);
+                                                 font-size:12px; font-weight:700;
+                                                 background:{{ s.risk.color }}18; color:{{ s.risk.color }};">
+                                        {{ s.risk.icon }} {{ s.risk.level }}
+                                    </span>
+                                    {% if s.risk.wellbeing_tags %}
+                                    <div style="display:flex; flex-wrap:wrap; gap:4px;">
+                                        {% for tag in s.risk.wellbeing_tags %}
+                                        <span class="badge"
+                                              style="background:{{ tag.color }}14; color:{{ tag.color }};"
+                                              title="{{ tag.desc }}">
+                                            {{ tag.icon }} {{ tag.name }}
+                                        </span>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                    {% if s.risk.strengths %}
+                                    <div style="display:flex; flex-wrap:wrap; gap:4px;">
+                                        {% for strength in s.risk.strengths %}
+                                        <span class="badge" style="background:var(--success-bg); color:var(--success);">
+                                            ✨ {{ strength }}
+                                        </span>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% else %}
+                                <span style="color:var(--text-muted); font-size:13px;">—</span>
+                                {% endif %}
+                            </td>
+                            <td style="color:var(--text-muted); font-size:12px;">{{ s['created_at'][:10] }}</td>
+                            <td>
+                                <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                                    <a href="{{ url_for('student_profile', student_id=s['id']) }}"
+                                       class="secondary-btn" style="padding:6px 14px; font-size:12px;"
+                                       aria-label="View profile for {{ s['name'] }}">
+                                       View Profile →
+                                    </a>
+                                    <button onclick="openNoteModal({{ s['id'] }}, '{{ s['name'] }}')"
+                                            class="hint-btn" style="font-size:12px;"
+                                            aria-label="Add note for {{ s['name'] }}">
+                                        📝 Add Note
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p style="font-size:36px;" aria-hidden="true">🎓</p>
+                <h3>No students yet</h3>
+                <p>Go back to Step 1 to add your first student.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- ══ RECENT BEHAVIOURAL NOTES ══════════════════════════ -->
+        {% if recent_notes %}
+        <div class="teacher-section">
+            <h3>📝 Recent Behavioural Notes</h3>
+            {% for note in recent_notes %}
+            <div class="note-card">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:14px;">
+                    <div>
+                        <span style="font-size:11px; font-weight:800; color:var(--brand);
+                                     text-transform:uppercase; letter-spacing:0.5px;">
+                            {{ note['student_name'] }}
+                        </span>
+                        <p style="margin-top:5px;">{{ note['note'] }}</p>
+                    </div>
+                    <time style="font-size:11px; color:var(--text-muted); white-space:nowrap; font-weight:500;"
+                          datetime="{{ note['created_at'][:10] }}">
+                        {{ note['created_at'][:10] }}
+                    </time>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <div style="display:flex; justify-content:flex-start; gap:12px; margin-top:24px;">
+            <button onclick="goToStep(2)" class="secondary-btn" style="min-width:120px;">← Back</button>
+        </div>
+    </div>
 
 </main>
 
@@ -202,6 +276,49 @@
 </div>
 
 <script>
+let currentStep = 1;
+
+function goToStep(step) {
+    // Hide all steps
+    document.getElementById('step1Content').style.display = 'none';
+    document.getElementById('step2Content').style.display = 'none';
+    document.getElementById('step3Content').style.display = 'none';
+    
+    // Reset all circle styles
+    document.getElementById('step1Circle').style.background = 'var(--border)';
+    document.getElementById('step1Circle').style.color = 'var(--text-muted)';
+    document.getElementById('step2Circle').style.background = 'var(--border)';
+    document.getElementById('step2Circle').style.color = 'var(--text-muted)';
+    document.getElementById('step3Circle').style.background = 'var(--border)';
+    document.getElementById('step3Circle').style.color = 'var(--text-muted)';
+    
+    // Show selected step
+    if (step === 1) {
+        document.getElementById('step1Content').style.display = 'block';
+        document.getElementById('step1Circle').style.background = 'var(--brand)';
+        document.getElementById('step1Circle').style.color = 'white';
+    } else if (step === 2) {
+        document.getElementById('step2Content').style.display = 'block';
+        document.getElementById('step2Circle').style.background = 'var(--brand)';
+        document.getElementById('step2Circle').style.color = 'white';
+        // Mark step 1 as complete
+        document.getElementById('step1Circle').style.background = 'var(--success)';
+        document.getElementById('step1Circle').style.color = 'white';
+    } else if (step === 3) {
+        document.getElementById('step3Content').style.display = 'block';
+        document.getElementById('step3Circle').style.background = 'var(--brand)';
+        document.getElementById('step3Circle').style.color = 'white';
+        // Mark steps 1 & 2 as complete
+        document.getElementById('step1Circle').style.background = 'var(--success)';
+        document.getElementById('step1Circle').style.color = 'white';
+        document.getElementById('step2Circle').style.background = 'var(--success)';
+        document.getElementById('step2Circle').style.color = 'white';
+    }
+    
+    currentStep = step;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 function openNoteModal(id, name) {
     document.getElementById('noteStudentId').value = id;
     document.getElementById('modalTitle').textContent = 'Add note for ' + name;
@@ -209,12 +326,15 @@ function openNoteModal(id, name) {
     modal.style.display = 'flex';
     modal.querySelector('textarea').focus();
 }
+
 function closeModal() {
     document.getElementById('noteModal').style.display = 'none';
 }
+
 document.getElementById('noteModal').addEventListener('click', function(e) {
     if (e.target === this) closeModal();
 });
+
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeModal();
 });
