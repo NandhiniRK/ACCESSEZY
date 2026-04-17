@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Register – Accessezy{% endblock %}
+{% block body_class %}auth-body{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-logo">Accessezy ✨</div>
+        <h2 class="auth-title">Create an account</h2>
+        <p class="auth-subtitle">Join Accessezy — it only takes a minute</p>
+
+        <form method="POST" action="{{ url_for('register') }}" autocomplete="off">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name"
+                       placeholder="Your full name" required autocomplete="off">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email address</label>
+                <input type="email" id="email" name="email"
+                       placeholder="you@email.com" required autocomplete="off">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password"
+                       placeholder="Choose a strong password" required autocomplete="new-password">
+            </div>
+
+            <div class="form-group">
+                <label for="role">I am a…</label>
+                <select id="role" name="role" required>
+                    <option value="">Select your role</option>
+                    <option value="teacher">Teacher 👩‍🏫</option>
+                    <option value="parent">Parent 👨‍👩‍👧</option>
+                </select>
+            </div>
+
+            <button type="submit" class="auth-btn">Create Account →</button>
+        </form>
+
+        <p class="auth-switch">
+            Already have an account? <a href="{{ url_for('login') }}">Log in</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

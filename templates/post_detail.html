@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }} – Accessezy Community{% endblock %}
+
+{% block content %}
+<header class="page-header">
+    <a href="{{ url_for('community') }}"
+       style="font-size:13px; color:var(--brand); font-weight:700; text-decoration:none;
+              display:inline-flex; align-items:center; gap:5px; margin-bottom:10px;
+              transition:opacity 0.18s;"
+       onmouseover="this.style.opacity='0.75'"
+       onmouseout="this.style.opacity='1'"
+       aria-label="Back to Community">← Back to Community</a>
+    <h2>💬 Community Post</h2>
+</header>
+
+<main style="max-width:780px; margin:0 auto; padding:0 var(--space-xl) 56px;">
+
+    <!-- ══ ORIGINAL POST ══════════════════════════════════════════
+         Display font title, pre-wrap content, author avatar footer,
+         like button, teacher-only pin/delete actions.
+    ════════════════════════════════════════════════════════════ -->
+    <article style="background:var(--surface); border:1px solid var(--border);
+                border-radius:var(--r-xl); padding:32px;
+                margin-bottom:28px; box-shadow:var(--shadow-sm);
+                {% if post.is_pinned %}border-left:4px solid var(--accent);{% endif %}"
+             aria-label="Post by {% if post.is_anonymous %}anonymous{% else %}{{ post.author_name }}{% endif %}">
+
+        <!-- Badges row -->
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+            <span class="badge {% if post.category=='announcements' %}badge-announcements{% elif post.category=='tips' %}badge-tips{% else %}badge-general{% endif %}">
+                {% if post.category=='announcements' %}📌{% elif post.category=='tips' %}💡{% else %}💬{% endif %}
+                {{ post.category|capitalize }}
+            </span>
+            {% if post.is_pinned %}
+            <span class="badge" style="background:var(--warning-bg); color:var(--warning);">📌 Pinned</span>
+            {% endif %}
+        </div>
+
+        <!-- Post title -->
+        <h3 style="font-family:var(--font-display); font-size:22px; font-weight:700;
+                   color:var(--text-primary); margin-bottom:16px; line-height:1.35; letter-spacing:-0.4px;">
+            {{ post.title }}
+        </h3>
+
+        <!-- Post content -->
+        <p style="font-size:15px; color:var(--text-secondary); line-height:1.85;
+                  white-space:pre-wrap; margin-bottom:24px;">{{ post.content }}</p>
+
+        <!-- Footer: author + like button -->
+        <div style="display:flex; align-items:center; justify-content:space-between;
+                    flex-wrap:wrap; gap:12px; padding-top:18px; border-top:1px solid var(--border);">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div class="child-avatar" style="width:38px; height:38px; font-size:15px;" aria-hidden="true">
+                    {% if post.is_anonymous %}?{% else %}{{ post.author_name[0].upper() }}{% endif %}
+                </div>
+                <div>
+                    <p style="font-size:13px; font-weight:700; color:var(--text-primary); margin:0;">
+                        {% if post.is_anonymous %}A Parent{% else %}{{ post.author_name }}{% endif %}
+                        {% if post.author_role == 'teacher' %}
+                        <span class="badge badge-teacher" style="margin-left:6px;">👩‍🏫 Teacher</span>
+                        {% endif %}
+                    </p>
+                    <time style="font-size:11px; color:var(--text-muted); font-weight:500;"
+                          datetime="{{ post.created_at[:10] }}">{{ post.created_at[:10] }}</time>
+                </div>
+            </div>
+            <form method="POST" action="{{ url_for('toggle_reaction', post_id=post.id) }}" style="margin:0;">
+                <button type="submit"
+                        style="display:flex; align-items:center; gap:7px; padding:9px 20px;
+                               border-radius:var(--r-pill); border:2px solid var(--border); cursor:pointer;
+                               background:{% if post.user_liked %}var(--danger-bg){% else %}var(--surface){% endif %};
+                               color:{% if post.user_liked %}var(--danger){% else %}var(--text-muted){% endif %};
+                               font-family:var(--font-body); font-size:13px; font-weight:700;
+                               transition:all 0.2s var(--ease);"
+                        onmouseover="this.style.transform='scale(1.04)'"
+                        onmouseout="this.style.transform='scale(1)'"
+                        aria-label="{% if post.user_liked %}Unlike{% else %}Like{% endif %} post, {{ post.like_count }} likes">
+                    {% if post.user_liked %}❤️{% else %}🤍{% endif %} {{ post.like_count }}
+                    <span style="font-size:12px; color:var(--text-muted); font-weight:500;">
+                        like{{ 's' if post.like_count!=1 else '' }}
+                    </span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Teacher moderation actions -->
+        {% if session.role == 'teacher' %}
+        <div style="display:flex; gap:10px; margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
+            <form method="POST" action="{{ url_for('toggle_pin', post_id=post.id) }}" style="margin:0;">
+                <button type="submit" class="hint-btn" style="font-size:12px;">
+                    {% if post.is_pinned %}📌 Unpin{% else %}📌 Pin{% endif %}
+                </button>
+            </form>
+            <form method="POST" action="{{ url_for('delete_post', post_id=post.id) }}" style="margin:0;"
+                  onsubmit="return confirm('Delete this post and all replies?')">
+                <button type="submit" class="hint-btn"
+                        style="font-size:12px; color:var(--danger); border-color:var(--danger);">
+                    🗑️ Delete Post
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </article>
+
+    <!-- ══ REPLIES COUNT ══════════════════════════════════════════ -->
+    <h4 style="font-size:11px; color:var(--text-muted); text-transform:uppercase;
+               letter-spacing:0.8px; font-weight:800; margin-bottom:14px;">
+        💬 {{ replies|length }} Repl{{ 'ies' if replies|length!=1 else 'y' }}
+    </h4>
+
+    <!-- ══ REPLIES LIST ═══════════════════════════════════════════ -->
+    {% if replies %}
+    <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:30px;"
+         role="list" aria-label="Replies">
+        {% for reply in replies %}
+        <div style="background:var(--surface-2); border:1px solid var(--border);
+                    border-radius:var(--r-md); padding:18px 20px;" role="listitem">
+            <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+                <div style="display:flex; align-items:flex-start; gap:12px; flex:1; min-width:0;">
+                    <div class="child-avatar" style="width:32px; height:32px; font-size:13px; flex-shrink:0;
+                                background:linear-gradient(135deg, var(--accent), var(--brand));"
+                         aria-hidden="true">
+                        {% if reply.is_anonymous %}?{% else %}{{ reply.author_name[0].upper() }}{% endif %}
+                    </div>
+                    <div style="flex:1; min-width:0;">
+                        <div style="display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:6px;">
+                            <span style="font-size:13px; font-weight:700; color:var(--text-primary);">
+                                {% if reply.is_anonymous %}A Parent{% else %}{{ reply.author_name }}{% endif %}
+                            </span>
+                            {% if reply.author_role == 'teacher' %}
+                            <span class="badge badge-teacher">👩‍🏫 Teacher</span>
+                            {% endif %}
+                            <time style="font-size:11px; color:var(--text-muted); font-weight:500;"
+                                  datetime="{{ reply.created_at[:10] }}">{{ reply.created_at[:10] }}</time>
+                        </div>
+                        <p style="font-size:14px; color:var(--text-primary); line-height:1.7;
+                                  margin:0; white-space:pre-wrap;">{{ reply.content }}</p>
+                    </div>
+                </div>
+                {% if session.role == 'teacher' %}
+                <form method="POST"
+                      action="{{ url_for('delete_reply', reply_id=reply.id, post_id=post.id) }}"
+                      style="margin:0; flex-shrink:0;"
+                      onsubmit="return confirm('Delete this reply?')">
+                    <button type="submit"
+                            style="background:none; border:none; cursor:pointer;
+                                   color:var(--text-muted); font-size:15px; padding:2px;
+                                   transition:color 0.18s;"
+                            onmouseover="this.style.color='var(--danger)'"
+                            onmouseout="this.style.color='var(--text-muted)'"
+                            aria-label="Delete this reply">🗑️</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center; padding:32px; color:var(--text-muted); margin-bottom:28px;">
+        <p style="font-size:14px; font-weight:500;">No replies yet — be the first to respond!</p>
+    </div>
+    {% endif %}
+
+    <!-- ══ REPLY FORM ═════════════════════════════════════════════ -->
+    <div style="background:var(--surface); border:1px solid var(--border);
+                border-radius:var(--r-xl); padding:28px; box-shadow:var(--shadow-sm);">
+        <h4 style="font-family:var(--font-display); font-size:16px; font-weight:700;
+                   color:var(--text-primary); margin-bottom:16px; letter-spacing:-0.2px;">
+            💬 Write a Reply
+        </h4>
+        <form method="POST" action="{{ url_for('add_reply', post_id=post.id) }}">
+            <textarea name="content" rows="4" required
+                      placeholder="Share your thoughts or support…"
+                      style="width:100%; padding:13px 16px; border:1.5px solid var(--border);
+                             border-radius:var(--r-md); font-size:14px; font-family:var(--font-body);
+                             resize:vertical; background:var(--surface-2); color:var(--text-primary);
+                             margin-bottom:14px; line-height:1.65; transition:border-color 0.2s;"
+                      onfocus="this.style.borderColor='var(--brand)'"
+                      onblur="this.style.borderColor='var(--border)'"
+                      aria-label="Write your reply"></textarea>
+            <div style="display:flex; align-items:center; justify-content:space-between;
+                        flex-wrap:wrap; gap:12px;">
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer;
+                              font-size:13px; color:var(--text-secondary); font-weight:600;">
+                    <input type="checkbox" name="is_anonymous" value="1"
+                           style="width:15px; height:15px; accent-color:var(--brand);">
+                    Reply anonymously
+                </label>
+                <button type="submit" class="primary-btn">Post Reply 💬</button>
+            </div>
+        </form>
+    </div>
+
+</main>
+{% endblock %}

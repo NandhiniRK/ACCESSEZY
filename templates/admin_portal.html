@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% block title %}Admin Portal – Accessezy{% endblock %}
+
+{% block content %}
+<header class="page-header">
+    <h2>🛡️ Admin Portal</h2>
+    <p>Platform overview, user management, and community moderation.</p>
+</header>
+
+<main style="max-width:1040px; margin:0 auto; padding:0 var(--space-xl) 56px;">
+
+    <!-- ══ PLATFORM STATS ═════════════════════════════════════════
+         Stat boxes with top-border accent on hover, display font values,
+         staggered fade-up animation.
+    ════════════════════════════════════════════════════════════ -->
+    <div class="stats-strip" style="grid-template-columns:repeat(auto-fill, minmax(120px, 1fr));">
+        {% for label, value, icon in [
+            ('Users',      stats.total_users,     '👤'),
+            ('Teachers',   stats.total_teachers,  '👩‍🏫'),
+            ('Parents',    stats.total_parents,   '👨‍👩‍👧'),
+            ('Students',   stats.total_students,  '🎓'),
+            ('Notes',      stats.total_notes,     '📝'),
+            ('Posts',      stats.total_posts,     '💬'),
+            ('Replies',    stats.total_replies,   '↩️'),
+            ('Homework',   stats.total_homework,  '📋'),
+            ('Materials',  stats.total_materials, '📎')
+        ] %}
+        <div class="stat-box">
+            <div style="font-size:22px; margin-bottom:6px;" aria-hidden="true">{{ icon }}</div>
+            <div class="stat-value">{{ value }}</div>
+            <div class="stat-label">{{ label }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- ══ MOST ACTIVE TEACHERS ═══════════════════════════════════ -->
+    {% if top_teachers %}
+    <div class="teacher-section" style="margin-bottom:var(--space-md);">
+        <h3>🏆 Most Active Teachers</h3>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+            {% for t in top_teachers %}
+            <div style="display:flex; align-items:center; justify-content:space-between;
+                        padding:12px 16px; background:var(--surface-2);
+                        border-radius:var(--r-md); border:1px solid var(--border);
+                        transition:border-color 0.2s, box-shadow 0.2s;"
+                 onmouseover="this.style.borderColor='rgba(74,124,89,0.3)'; this.style.boxShadow='var(--shadow-sm)'"
+                 onmouseout="this.style.borderColor='var(--border)'; this.style.boxShadow='none'">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div class="child-avatar" style="width:34px; height:34px; font-size:13px;" aria-hidden="true">
+                        {{ t['name'][0].upper() }}
+                    </div>
+                    <span style="font-size:14px; font-weight:700; color:var(--text-primary);">{{ t['name'] }}</span>
+                </div>
+                <span style="font-size:13px; color:var(--brand); font-weight:800;
+                             background:var(--brand-light); padding:3px 12px;
+                             border-radius:var(--r-pill);">
+                    {{ t['note_count'] }} note{{ 's' if t['note_count'] != 1 else '' }}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ══ ALL REGISTERED USERS ═══════════════════════════════════ -->
+    <div class="teacher-section" style="margin-bottom:var(--space-md);">
+        <h3>👤 All Registered Users</h3>
+        {% if users %}
+        <div class="results-table-wrap">
+            <table class="results-table" aria-label="Registered users">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Role</th>
+                        <th scope="col" style="text-align:center;">Students</th>
+                        <th scope="col" style="text-align:center;">Notes</th>
+                        <th scope="col" style="text-align:center;">Posts</th>
+                        <th scope="col">Joined</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div class="child-avatar" style="width:30px; height:30px; font-size:11px; flex-shrink:0;"
+                                     aria-hidden="true">{{ u['name'][0].upper() }}</div>
+                                <strong style="font-size:14px;">{{ u['name'] }}</strong>
+                            </div>
+                        </td>
+                        <td style="color:var(--text-secondary); font-size:13px;">{{ u['email'] }}</td>
+                        <td>
+                            <span class="badge {% if u['role']=='teacher' %}badge-teacher{% else %}badge-parent{% endif %}">
+                                {% if u['role']=='teacher' %}👩‍🏫{% else %}👨‍👩‍👧{% endif %}
+                                {{ u['role']|capitalize }}
+                            </span>
+                        </td>
+                        <td style="text-align:center; color:var(--text-secondary);">{{ u['student_count'] or '—' }}</td>
+                        <td style="text-align:center; color:var(--text-secondary);">{{ u['note_count'] or '—' }}</td>
+                        <td style="text-align:center; color:var(--text-secondary);">{{ u['post_count'] or '—' }}</td>
+                        <td style="font-size:12px; color:var(--text-muted); font-weight:500;">{{ u['created_at'][:10] }}</td>
+                        <td>
+                            {% if u['email'] != session.get('admin_email', 'admin@accessezy.com') %}
+                            <form method="POST"
+                                  action="{{ url_for('admin_delete_user', user_id=u['id']) }}"
+                                  style="margin:0;"
+                                  onsubmit="return confirm('Permanently delete {{ u['name'] }} and all their data?')">
+                                <button type="submit" class="hint-btn"
+                                        style="font-size:12px; color:var(--danger); border-color:var(--danger);"
+                                        aria-label="Delete {{ u['name'] }}">
+                                    🗑️ Delete
+                                </button>
+                            </form>
+                            {% else %}
+                            <span style="font-size:11px; color:var(--text-muted); font-weight:600;">You (Admin)</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p style="color:var(--text-muted); font-size:14px;">No users registered yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- ══ COMMUNITY MODERATION ════════════════════════════════════ -->
+    <div class="teacher-section">
+        <h3>💬 Community Moderation</h3>
+        <p style="font-size:13px; color:var(--text-secondary); margin-bottom:18px; line-height:1.6;">
+            Showing the 20 most recent posts. Deleting a post removes all its replies.
+        </p>
+        {% if community_posts %}
+        <div style="display:flex; flex-direction:column; gap:10px;">
+            {% for post in community_posts %}
+            <div style="background:var(--surface-2); border:1px solid var(--border);
+                        border-radius:var(--r-md); padding:16px 18px;
+                        display:flex; align-items:flex-start; justify-content:space-between; gap:14px;
+                        transition:border-color 0.2s, box-shadow 0.2s;"
+                 onmouseover="this.style.borderColor='rgba(74,124,89,0.25)'; this.style.boxShadow='var(--shadow-xs)'"
+                 onmouseout="this.style.borderColor='var(--border)'; this.style.boxShadow='none'">
+                <div style="flex:1; min-width:0;">
+                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:7px;">
+                        <span class="badge {% if post.category=='announcements' %}badge-announcements{% elif post.category=='tips' %}badge-tips{% else %}badge-general{% endif %}">
+                            {{ post.category|capitalize }}
+                        </span>
+                        {% if post.is_pinned %}
+                        <span style="font-size:11px; color:var(--warning); font-weight:800;">📌 Pinned</span>
+                        {% endif %}
+                        <span style="font-size:11px; color:var(--text-muted); font-weight:500;">
+                            by {% if post.is_anonymous %}Anonymous{% else %}{{ post.author_name }}{% endif %}
+                            · {{ post.created_at[:10] }} · 💬 {{ post.reply_count }} repl{{ 'ies' if post.reply_count!=1 else 'y' }}
+                        </span>
+                    </div>
+                    <p style="font-size:14px; font-weight:700; color:var(--text-primary); margin:0 0 3px;">
+                        {{ post.title }}
+                    </p>
+                    <p style="font-size:13px; color:var(--text-secondary); margin:0; line-height:1.6;">
+                        {{ post.content[:130] }}{% if post.content|length>130 %}…{% endif %}
+                    </p>
+                </div>
+                <div style="display:flex; gap:8px; flex-shrink:0;">
+                    <a href="{{ url_for('post_detail', post_id=post.id) }}"
+                       class="secondary-btn" style="font-size:12px; padding:6px 14px;">View →</a>
+                    <form method="POST"
+                          action="{{ url_for('admin_delete_post', post_id=post.id) }}"
+                          style="margin:0;"
+                          onsubmit="return confirm('Delete this post and all its replies?')">
+                        <button type="submit" class="hint-btn"
+                                style="font-size:12px; color:var(--danger); border-color:var(--danger);"
+                                aria-label="Delete post: {{ post.title }}">
+                            🗑️ Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="color:var(--text-muted); font-size:14px;">No community posts yet.</p>
+        {% endif %}
+    </div>
+
+</main>
+{% endblock %}

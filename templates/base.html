@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Accessezy{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+    <!-- Skip-to-content for keyboard/screen-reader users -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    {% if session.user_id %}
+    <!-- ══ NAVBAR ══════════════════════════════════════════════════
+         Glass-morphism sticky navbar. Brand uses display font (Fraunces)
+         for premium feel. Nav links have subtle hover states.
+    ════════════════════════════════════════════════════════════ -->
+    <nav class="navbar" role="navigation" aria-label="Main navigation">
+        <a href="{{ url_for('home') }}" class="nav-brand" aria-label="Accessezy home">
+            Accessezy ✨
+        </a>
+        <div class="nav-links">
+            {% if session.role == 'teacher' %}
+                <a href="{{ url_for('teacher_dashboard') }}">Dashboard</a>
+            {% elif session.role == 'parent' %}
+                <a href="{{ url_for('parent_dashboard') }}">Dashboard</a>
+            {% endif %}
+            <a href="{{ url_for('community') }}">Community</a>
+            {% if session.is_admin %}
+            <a href="{{ url_for('admin_portal') }}" class="nav-admin">🛡️ Admin</a>
+            {% endif %}
+            <span class="nav-user" aria-label="Logged in as {{ session.name }}">
+                Hi, {{ session.name }}!
+                {% if session.role == 'teacher' %}👩‍🏫{% else %}👨‍👩‍👧{% endif %}
+            </span>
+            <a href="{{ url_for('logout') }}" class="nav-logout" aria-label="Log out of Accessezy">Log out</a>
+        </div>
+    </nav>
+    {% endif %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-container" role="alert" aria-live="polite">
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div id="main-content">
+        {% block content %}{% endblock %}
+    </div>
+
+</body>
+</html>

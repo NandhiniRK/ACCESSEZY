@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+{% block title %}Accessezy – Neuro Learning Platform{% endblock %}
+{% block body_class %}landing-body{% endblock %}
+
+{% block content %}
+
+<!-- ══ HERO ══════════════════════════════════════════════════════
+     IMPROVEMENTS:
+     - Fraunces display font for the title (distinctive, warm serif)
+     - Larger 72px title with tighter tracking
+     - Richer animated blob backgrounds
+     - Amber underline accent animation on "unique mind"
+     - Pill eyebrow label with uppercase tracking
+     - Two CTA buttons: primary (filled) + secondary (glass)
+════════════════════════════════════════════════════════════ -->
+<section class="hero-section" aria-label="Welcome to Accessezy">
+
+    <div class="hero-blob hero-blob-1" aria-hidden="true"></div>
+    <div class="hero-blob hero-blob-2" aria-hidden="true"></div>
+    <div class="hero-blob hero-blob-3" aria-hidden="true"></div>
+
+    <div class="hero-content">
+        <div class="hero-eyebrow">
+            <span>🌿</span> Designed for neurodivergent learners
+        </div>
+
+        <h1 class="hero-title">
+            Supporting every<br>
+            <span class="highlight">unique mind</span>
+        </h1>
+
+        <p class="hero-subtitle">
+            Accessezy helps teachers and parents understand, track, and celebrate
+            the learning journey of children aged 8–12 with Autism Spectrum Disorder —
+            through calm, structured tools and AI-powered insights.
+        </p>
+
+        <div class="hero-cta-group">
+            <a href="#get-started" class="hero-btn-primary">
+                Get Started 🌱
+            </a>
+            <a href="#features" class="hero-btn-secondary">
+                Learn More ↓
+            </a>
+        </div>
+    </div>
+
+    <!-- Scroll hint -->
+    <div class="scroll-hint" aria-hidden="true">
+        <div class="scroll-arrow">↓</div>
+    </div>
+</section>
+
+
+<!-- ══ FEATURES ══════════════════════════════════════════════════
+     IMPROVEMENTS:
+     - Display font for section title and feature headings
+     - Left-accent border on hover (green stripe)
+     - Icon with shadow glow + spring-animated hover
+     - scroll-reveal stagger animation
+════════════════════════════════════════════════════════════ -->
+<section class="features-section" id="features" aria-label="Platform features">
+
+    <p class="section-label">What we offer</p>
+    <h2 class="section-title">Everything in one calm space</h2>
+    <p class="section-desc">
+        No clutter, no overwhelm — just the tools that matter,
+        laid out clearly for teachers and parents alike.
+    </p>
+
+    <div class="features-grid">
+
+        <div class="feature-card scroll-reveal">
+            <div class="feature-icon">📊</div>
+            <h3>Behavioural Analytics</h3>
+            <p>Track observations over time with structured weekly logs. Spot patterns early with AI-powered wellbeing tags that flag academic overload, social stress, and emotional regulation.</p>
+        </div>
+
+        <div class="feature-card scroll-reveal" style="transition-delay: 0.07s;">
+            <div class="feature-icon">🤖</div>
+            <h3>AI Weekly Summaries</h3>
+            <p>Automatically generated summaries of teacher notes give parents a clear, compassionate picture of their child's week — no jargon, just insight.</p>
+        </div>
+
+        <div class="feature-card scroll-reveal" style="transition-delay: 0.14s;">
+            <div class="feature-icon">💡</div>
+            <h3>Personalised Recommendations</h3>
+            <p>Activity suggestions tailored to each child's current wellbeing profile, powered by semantic similarity — helping teachers and parents respond with intention.</p>
+        </div>
+
+        <div class="feature-card scroll-reveal" style="transition-delay: 0.21s;">
+            <div class="feature-icon">📋</div>
+            <h3>Homework & Materials</h3>
+            <p>Assign homework and share learning resources directly through the platform. Parents see everything in one place, with due dates and links clearly visible.</p>
+        </div>
+
+        <div class="feature-card scroll-reveal" style="transition-delay: 0.28s;">
+            <div class="feature-icon">💬</div>
+            <h3>Community Support</h3>
+            <p>A safe, moderated space for teachers and parents to share tips, ask questions, and support each other — with anonymous posting for sensitive topics.</p>
+        </div>
+
+        <div class="feature-card scroll-reveal" style="transition-delay: 0.35s;">
+            <div class="feature-icon">🔒</div>
+            <h3>Private & Structured</h3>
+            <p>Role-based access ensures teachers manage student data, parents see only their child, and all information stays protected and appropriately scoped.</p>
+        </div>
+
+    </div>
+</section>
+
+
+<!-- ══ WAVE DIVIDER ══════════════════════════════════════════════ -->
+<div class="wave-divider" aria-hidden="true">
+    <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <path d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z" fill="#EDE9E3"/>
+    </svg>
+</div>
+
+
+<!-- ══ HOW IT WORKS ══════════════════════════════════════════════
+     IMPROVEMENTS:
+     - Section heading in display font
+     - Numbered steps with brand-colored pill badges
+     - Subtle vertical divider between columns
+════════════════════════════════════════════════════════════ -->
+<section style="background:#EDE9E3; padding: 90px var(--space-xl);" aria-label="How it works">
+    <div style="max-width:900px; margin:0 auto; text-align:center;">
+        <p class="section-label">How it works</p>
+        <h2 class="section-title">Simple for everyone</h2>
+        <p class="section-desc">Two roles, one shared purpose — supporting every child's growth.</p>
+
+        <div style="display:grid; grid-template-columns: 1fr auto 1fr; gap:28px; align-items:start; margin-top:52px;">
+
+            <!-- Teachers Column -->
+            <div class="scroll-reveal" style="background:var(--surface); border-radius:var(--r-xl); padding:36px 30px;
+                         border:1px solid var(--border); box-shadow:var(--shadow-sm); text-align:left;">
+                <div style="font-size:40px; margin-bottom:18px;">👩‍🏫</div>
+                <h3 style="font-family:var(--font-display); font-size:18px; font-weight:700; color:var(--text-primary);
+                            margin-bottom:18px; letter-spacing:-0.3px;">For Teachers</h3>
+                <div style="display:flex; flex-direction:column; gap:14px;">
+                    {% for step in ['Add your students and link their parents', 'Log weekly behavioural observations', 'Assign homework and share resources', 'Monitor AI-detected wellbeing trends', 'Post updates in the community'] %}
+                    <div style="display:flex; align-items:flex-start; gap:12px;">
+                        <span style="width:24px; height:24px; border-radius:50%; background:var(--brand-light);
+                                     color:var(--brand); font-size:11px; font-weight:800; display:flex;
+                                     align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;">{{ loop.index }}</span>
+                        <span style="font-size:14px; color:var(--text-secondary); line-height:1.6;">{{ step }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div style="display:flex; align-items:center; justify-content:center; padding-top:60px;">
+                <div style="width:1px; height:240px; background:linear-gradient(to bottom, transparent, var(--border-mid), transparent);"></div>
+            </div>
+
+            <!-- Parents Column -->
+            <div class="scroll-reveal" style="background:var(--surface); border-radius:var(--r-xl); padding:36px 30px;
+                         border:1px solid var(--border); box-shadow:var(--shadow-sm); text-align:left; transition-delay:0.12s;">
+                <div style="font-size:40px; margin-bottom:18px;">👨‍👩‍👧</div>
+                <h3 style="font-family:var(--font-display); font-size:18px; font-weight:700; color:var(--text-primary);
+                            margin-bottom:18px; letter-spacing:-0.3px;">For Parents</h3>
+                <div style="display:flex; flex-direction:column; gap:14px;">
+                    {% for step in ["Create your account and get linked by the teacher", "See your child's weekly AI summary", "Review teacher notes and observations", "Check assigned homework and materials", "Connect with other parents in the community"] %}
+                    <div style="display:flex; align-items:flex-start; gap:12px;">
+                        <span style="width:24px; height:24px; border-radius:50%; background:var(--accent-light);
+                                     color:var(--accent); font-size:11px; font-weight:800; display:flex;
+                                     align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;">{{ loop.index }}</span>
+                        <span style="font-size:14px; color:var(--text-secondary); line-height:1.6;">{{ step }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<!-- ══ WAVE back to light ═════════════════════════════════════ -->
+<div class="wave-divider" aria-hidden="true" style="transform:rotate(180deg); margin-bottom:-2px;">
+    <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <path d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z" fill="#EDE9E3"/>
+    </svg>
+</div>
+
+
+<!-- ══ GET STARTED ════════════════════════════════════════════════
+     IMPROVEMENTS:
+     - Larger auth choice cards with bottom-border accent on hover
+     - Display font for card titles
+     - More generous padding and card elevation
+════════════════════════════════════════════════════════════ -->
+<section class="auth-landing-section" id="get-started" aria-label="Get started">
+    <div style="position:relative; z-index:1;">
+        <p class="section-label">Ready to begin?</p>
+        <h2 class="section-title">Join Accessezy today</h2>
+        <p class="section-desc" style="margin-bottom:0;">
+            Choose your role below to create an account or log in.
+        </p>
+    </div>
+
+    <div class="auth-cards-row">
+
+        <a href="{{ url_for('login') }}" class="auth-choice-card scroll-reveal" style="transition-delay:0.06s;">
+            <span class="card-icon">🔑</span>
+            <h3>Already have an account?</h3>
+            <p>Welcome back! Log in to access your dashboard, view the latest updates, and stay connected with your child's progress.</p>
+            <span class="card-cta card-cta-primary">Log In →</span>
+        </a>
+
+        <a href="{{ url_for('register') }}" class="auth-choice-card scroll-reveal" style="transition-delay:0.16s;">
+            <span class="card-icon">🌱</span>
+            <h3>New here?</h3>
+            <p>Create a free account as a teacher or parent. It only takes a minute to get set up and start supporting your learner.</p>
+            <span class="card-cta card-cta-secondary">Create Account →</span>
+        </a>
+
+    </div>
+
+    <p style="margin-top:52px; font-size:12px; color:var(--text-muted); position:relative; z-index:1; font-weight:500;">
+        Accessezy ✨ · Built with care for neurodivergent learners aged 8–12
+    </p>
+</section>
+
+
+<script>
+/* ── Scroll-reveal: add .visible when element enters viewport ── */
+(function() {
+    const targets = document.querySelectorAll('.scroll-reveal');
+    if (!targets.length) return;
+
+    const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                e.target.classList.add('visible');
+                io.unobserve(e.target);
+            }
+        });
+    }, { threshold: 0.10 });
+
+    targets.forEach(t => io.observe(t));
+})();
+
+/* ── Smooth scroll for anchor links ── */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+        const id = a.getAttribute('href').slice(1);
+        const el = document.getElementById(id);
+        if (el) {
+            e.preventDefault();
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+});
+</script>
+
+{% endblock %}

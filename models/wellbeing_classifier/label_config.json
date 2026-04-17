@@ -1,0 +1,17 @@
+{
+  "id2label": {
+    "0": "Academic Overload",
+    "1": "Social Stress",
+    "2": "Emotional Regulation"
+  },
+  "label2id": {
+    "Academic Overload": 0,
+    "Social Stress": 1,
+    "Emotional Regulation": 2
+  },
+  "category_names": [
+    "Academic Overload",
+    "Social Stress",
+    "Emotional Regulation"
+  ]
+}

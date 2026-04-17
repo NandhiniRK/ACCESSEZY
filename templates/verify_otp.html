@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Verify Email – Accessezy{% endblock %}
+{% block body_class %}auth-body{% endblock %}
+
+{% block content %}
+<!-- ══ OTP VERIFICATION CARD ══════════════════════════════════════
+     Same premium auth card style as login/register.
+     Large monospaced OTP input, auto-focused.
+════════════════════════════════════════════════════════════ -->
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-logo">Accessezy ✨</div>
+        <h2 class="auth-title">Check your inbox</h2>
+        <p class="auth-subtitle">
+            We sent a 6-digit verification code to<br>
+            <strong style="color: var(--text-primary);">{{ email }}</strong>
+        </p>
+
+        <!-- Info banner -->
+        <div style="background: var(--brand-light); border: 1.5px solid rgba(74,124,89,0.2);
+                    border-radius: var(--r-md); padding: 13px 16px; margin-bottom: 24px;
+                    display: flex; align-items: flex-start; gap: 10px;">
+            <span style="font-size: 16px; flex-shrink: 0; margin-top: 1px;">📬</span>
+            <p style="font-size: 13px; color: var(--text-secondary); margin: 0; line-height: 1.6;">
+                The code expires in <strong>10 minutes</strong>.
+                Check your spam folder if you don't see it.
+            </p>
+        </div>
+
+        <form method="POST" action="{{ url_for('verify_otp') }}" autocomplete="off">
+            <div class="form-group">
+                <label for="otp">Verification Code</label>
+                <input
+                    type="text"
+                    id="otp"
+                    name="otp"
+                    placeholder="000000"
+                    maxlength="6"
+                    required
+                    autocomplete="one-time-code"
+                    inputmode="numeric"
+                    pattern="[0-9]{6}"
+                    autofocus
+                    style="letter-spacing: 10px; font-size: 28px; text-align: center;
+                           font-family: var(--font-mono, monospace); font-weight: 700;
+                           padding: 16px; tracking: wider;">
+            </div>
+
+            <button type="submit" class="auth-btn">Verify Email ✅</button>
+        </form>
+
+        <p class="auth-switch" style="margin-top: 20px;">
+            Wrong email or code expired?
+            <a href="{{ url_for('register') }}">Start over</a>
+        </p>
+    </div>
+</div>
+
+<script>
+    /* Auto-submit when 6 digits are entered */
+    document.getElementById('otp').addEventListener('input', function () {
+        if (this.value.replace(/\D/g, '').length === 6) {
+            this.value = this.value.replace(/\D/g, '');
+            this.closest('form').submit();
+        }
+    });
+    /* Strip non-digits as user types */
+    document.getElementById('otp').addEventListener('keypress', function (e) {
+        if (!/[0-9]/.test(e.key)) e.preventDefault();
+    });
+</script>
+{% endblock %}

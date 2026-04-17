@@ -1,0 +1,78 @@
+{
+  "best_global_step": 250,
+  "best_metric": 0.6166723370552063,
+  "best_model_checkpoint": "models\\wellbeing_classifier\\checkpoints\\checkpoint-250",
+  "epoch": 1.0,
+  "eval_steps": 500,
+  "global_step": 250,
+  "is_hyper_param_search": false,
+  "is_local_process_zero": true,
+  "is_world_process_zero": true,
+  "log_history": [
+    {
+      "epoch": 0.2,
+      "grad_norm": 2.574594259262085,
+      "learning_rate": 2.45e-05,
+      "loss": 0.9936219024658203,
+      "step": 50
+    },
+    {
+      "epoch": 0.4,
+      "grad_norm": 4.47060489654541,
+      "learning_rate": 4.9500000000000004e-05,
+      "loss": 0.8796139526367187,
+      "step": 100
+    },
+    {
+      "epoch": 0.6,
+      "grad_norm": 4.608175754547119,
+      "learning_rate": 4.6230769230769234e-05,
+      "loss": 0.6993750762939454,
+      "step": 150
+    },
+    {
+      "epoch": 0.8,
+      "grad_norm": 6.938237190246582,
+      "learning_rate": 4.238461538461539e-05,
+      "loss": 0.6495550537109375,
+      "step": 200
+    },
+    {
+      "epoch": 1.0,
+      "grad_norm": 4.89279842376709,
+      "learning_rate": 3.853846153846154e-05,
+      "loss": 0.6742160797119141,
+      "step": 250
+    },
+    {
+      "epoch": 1.0,
+      "eval_f1": 0.7530785416689854,
+      "eval_loss": 0.6166723370552063,
+      "eval_runtime": 13.36,
+      "eval_samples_per_second": 37.425,
+      "eval_steps_per_second": 1.198,
+      "step": 250
+    }
+  ],
+  "logging_steps": 50,
+  "max_steps": 750,
+  "num_input_tokens_seen": 0,
+  "num_train_epochs": 3,
+  "save_steps": 500,
+  "stateful_callbacks": {
+    "TrainerControl": {
+      "args": {
+        "should_epoch_stop": false,
+        "should_evaluate": false,
+        "should_log": false,
+        "should_save": true,
+        "should_training_stop": false
+      },
+      "attributes": {}
+    }
+  },
+  "total_flos": 53815840416000.0,
+  "train_batch_size": 16,
+  "trial_name": null,
+  "trial_params": null
+}
