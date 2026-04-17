@@ -1,13 +1,11 @@
 import os
 import csv
 import io
-import random
 import hashlib
-from datetime import datetime, timedelta
+from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, session, flash, Response
 from database import init_db, get_db
 from ai_engine import classify_notes_for_student, predict_risk, summarize_notes, recommend_activities
-from mailer import send_otp_email
 
 # Load .env file if present (local development)
 try:
@@ -36,7 +34,7 @@ def reset_db():
         "community_replies", "post_reactions", "community_posts",
         "learning_materials", "homework", "classroom_activities",
         "observational_logs", "behavioral_notes", "parent_student_link",
-        "student_profiles", "users", "pending_users"
+        "student_profiles", "users"
     ]
     for t in tables:
         db.execute(f"DELETE FROM {t}")
@@ -105,80 +103,18 @@ def register():
             db.close()
             return render_template("register.html")
 
-        # Generate 6-digit OTP, valid for 10 minutes
-        otp      = str(random.randint(100000, 999999))
-        expires  = datetime.utcnow() + timedelta(minutes=10)
-
-        # Upsert into pending_users (clear any previous attempt with same email)
-        db.execute("DELETE FROM pending_users WHERE email = ?", (email,))
-        db.execute(
-            "INSERT INTO pending_users (name, email, password, role, otp, expires_at) VALUES (?, ?, ?, ?, ?, ?)",
-            (name, email, hash_password(password), role, otp, expires.isoformat())
-        )
-        db.commit()
-        db.close()
-
-        try:
-            send_otp_email(email, otp, name)
-        except Exception as e:
-            flash(f"Could not send verification email: {e}", "danger")
-            return render_template("register.html")
-
-        session["pending_email"] = email
-        flash("We sent a 6-digit code to your email. Enter it below.", "info")
-        return redirect(url_for("verify_otp"))
-
-    return render_template("register.html")
-
-
-@app.route("/verify-otp", methods=["GET", "POST"])
-def verify_otp():
-    email = session.get("pending_email")
-    if not email:
-        return redirect(url_for("register"))
-
-    if request.method == "POST":
-        entered_otp = request.form.get("otp", "").strip()
-        db = get_db()
-        pending = db.execute(
-            "SELECT * FROM pending_users WHERE email = ?", (email,)
-        ).fetchone()
-
-        if not pending:
-            flash("Session expired. Please register again.", "danger")
-            db.close()
-            return redirect(url_for("register"))
-
-        # Check expiry
-        expires_at = datetime.fromisoformat(pending["expires_at"])
-        if datetime.utcnow() > expires_at:
-            db.execute("DELETE FROM pending_users WHERE email = ?", (email,))
-            db.commit()
-            db.close()
-            session.pop("pending_email", None)
-            flash("Verification code expired. Please register again.", "danger")
-            return redirect(url_for("register"))
-
-        # Check OTP
-        if pending["otp"] != entered_otp:
-            db.close()
-            flash("Incorrect code. Please try again.", "danger")
-            return render_template("verify_otp.html", email=email)
-
-        # OTP correct — move to real users table
+        # Create user account directly
         db.execute(
             "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)",
-            (pending["name"], pending["email"], pending["password"], pending["role"])
+            (name, email, hash_password(password), role)
         )
-        db.execute("DELETE FROM pending_users WHERE email = ?", (email,))
         db.commit()
         db.close()
 
-        session.pop("pending_email", None)
-        flash("Email verified! Your account is ready. Please log in. 🎉", "success")
+        flash("Account created successfully! Please log in. 🎉", "success")
         return redirect(url_for("login"))
 
-    return render_template("verify_otp.html", email=email)
+    return render_template("register.html")
 
 
 @app.route("/login", methods=["GET", "POST"])

@@ -72,8 +72,7 @@ Optional fine-tuned DistilBERT classifier on GoEmotions dataset for enhanced emo
 **Backend**: Flask + SQLite3  
 **Frontend**: Jinja2 templates with responsive CSS  
 **Machine Learning**: PyTorch, HuggingFace Transformers, Sentence-Transformers  
-**Email**: Gmail SMTP for OTP verification  
-**Authentication**: SHA256 password hashing + OTP-based email verification  
+**Authentication**: SHA256 password hashing  
 
 ---
 
@@ -82,7 +81,6 @@ Optional fine-tuned DistilBERT classifier on GoEmotions dataset for enhanced emo
 ### Prerequisites
 - Python 3.8+
 - pip (Python package manager)
-- Gmail account with app-specific password (for email verification)
 
 ### Steps
 
@@ -111,8 +109,6 @@ Optional fine-tuned DistilBERT classifier on GoEmotions dataset for enhanced emo
    ```
    SECRET_KEY=your-random-secret-key
    ADMIN_EMAIL=admin@accessezy.com
-   MAIL_USER=your-gmail@gmail.com
-   MAIL_PASSWORD=your-app-specific-password
    ```
 
 5. **Initialize the database**
@@ -137,13 +133,9 @@ Optional fine-tuned DistilBERT classifier on GoEmotions dataset for enhanced emo
 |----------|-------------|---------|
 | `SECRET_KEY` | Flask session secret key | `random-string-here` |
 | `ADMIN_EMAIL` | Email address that gets admin access | `admin@accessezy.com` |
-| `MAIL_USER` | Gmail address for sending OTPs | `your-email@gmail.com` |
-| `MAIL_PASSWORD` | Gmail app-specific password | `abcd efgh ijkl mnop` |
 
-### Gmail Setup (for OTP emails)
-1. Enable 2-factor authentication on your Google account
-2. Create an app-specific password at https://myaccount.google.com/apppasswords
-3. Use this password in `.env` as `MAIL_PASSWORD`
+
+
 
 ---
 
@@ -156,9 +148,9 @@ python app.py
 Access the application at `http://localhost:5000`
 
 ### User Registration Flow
-1. **Sign Up**: Fill in email and password
-2. **OTP Verification**: Receive 6-digit code via email (valid for 10 minutes)
-3. **Dashboard**: Access role-specific dashboard
+1. **Sign Up**: Fill in name, email, password, and select role (teacher or parent)
+2. **Account Created**: Account is immediately ready
+3. **Log In**: Use email and password to access the dashboard
 
 ### Teacher Workflow
 1. **Login** as teacher (email doesn't need to be admin)
@@ -185,18 +177,18 @@ Access the application at `http://localhost:5000`
 ### Application Flow
 
 ```
-User Registration → OTP Verification → Dashboard (Role-Based)
-                        ↓
+User Registration → Dashboard (Role-Based)
+                        ↑
                    [Flask App]
-                   ├── Auth Routes
+                   ├── Auth Routes (Register, Login, Logout)
                    ├── Teacher Routes
                    ├── Parent Routes
                    ├── Student Profiles → AI Engine
                    ├── Community Routes
                    └── Admin Routes
-                        ↓
+                        ║
                    [SQLite Database]
-                   └── 12 Tables
+                   └── 11 Tables
 ```
 
 ### AI Processing Pipeline (Student Profile View)
@@ -220,7 +212,7 @@ Teacher Notes/Logs → Emotion Classification
 | `app.py` | Main Flask application with all routes |
 | `ai_engine.py` | AI/ML pipeline (emotion, risk, summarization, recommendations) |
 | `database.py` | SQLite database schema and initialization |
-| `mailer.py` | Email sending (OTPs, branded templates) |
+
 | `train_classifier.py` | Fine-tune DistilBERT on GoEmotions dataset |
 | `evaluate_classifier.py` | Evaluate classifier performance vs. keyword baseline |
 | `questions.py` | Activity recommendation question bank (50+ questions) |
@@ -234,7 +226,6 @@ Teacher Notes/Logs → Emotion Classification
 | Table | Purpose | Key Fields |
 |-------|---------|-----------|
 | `users` | User accounts (teachers & parents) | email, password_hash, role, created_at |
-| `pending_users` | OTP verification queue | email, otp_code, expiry_time |
 | `student_profiles` | Student records | name, age, date_of_birth, created_by (teacher_id), created_at |
 | `parent_student_link` | Parent-child relationships | parent_id, student_id |
 | `behavioral_notes` | Teacher observations | student_id, note_text, created_at |
@@ -246,7 +237,7 @@ Teacher Notes/Logs → Emotion Classification
 | `community_replies` | Post replies | post_id, author_id, reply_text, created_at |
 | `post_reactions` | Post likes | post_id, user_id, created_at |
 
-**Total Tables**: 12  
+**Total Tables**: 11  
 **Initial Database Size**: ~1-2 MB
 
 ---
@@ -303,7 +294,6 @@ accessezy/
 ├── app.py                        # Main Flask application
 ├── ai_engine.py                  # AI/ML pipeline
 ├── database.py                   # SQLite schema & initialization
-├── mailer.py                     # Email functionality
 ├── train_classifier.py           # Fine-tune emotion classifier
 ├── evaluate_classifier.py        # Evaluate classifier performance
 ├── questions.py                  # Activity recommendation questions
@@ -324,7 +314,6 @@ accessezy/
 │   ├── index.html                # Home/landing page
 │   ├── login.html
 │   ├── register.html
-│   ├── verify_otp.html
 │   ├── admin_portal.html
 │   ├── teacher_dashboard.html
 │   ├── parent_dashboard.html
@@ -380,12 +369,6 @@ Edit `questions.py` to add new activities to the recommendation bank. Activities
 ---
 
 ## Troubleshooting
-
-### OTP Email Not Received
-1. Check `.env` file has correct Gmail credentials
-2. Verify Gmail app-specific password is correct
-3. Check spam folder
-4. Ensure 2FA is enabled on Gmail account
 
 ### Models Not Loading
 - **Solution**: Models download automatically on first use (~4.5GB total)

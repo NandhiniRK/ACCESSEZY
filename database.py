@@ -23,20 +23,6 @@ def init_db():
         )
     """)
 
-    # ── Pending users awaiting OTP email verification ────────────────
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS pending_users (
-            id         INTEGER PRIMARY KEY AUTOINCREMENT,
-            name       TEXT NOT NULL,
-            email      TEXT UNIQUE NOT NULL,
-            password   TEXT NOT NULL,
-            role       TEXT NOT NULL,
-            otp        TEXT NOT NULL,
-            expires_at TIMESTAMP NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-
     # ── Student profiles (managed by teacher, not a login account) ──
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS student_profiles (
